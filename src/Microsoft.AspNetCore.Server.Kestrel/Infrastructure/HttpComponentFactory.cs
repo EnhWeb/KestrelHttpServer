@@ -44,16 +44,14 @@ namespace Microsoft.AspNetCore.Server.Kestrel.Infrastructure
             }
         }
 
-        public Headers CreateHeaders(DateHeaderValueManager dateValueManager)
+        public Headers CreateHeaders()
         {
             Headers headers;
 
             if (!_headerPool.TryDequeue(out headers))
             {
-                headers = new Headers(ServerOptions);
+                headers = new Headers();
             }
-
-            headers.Initialize(dateValueManager);
 
             return headers;
         }
@@ -75,25 +73,6 @@ namespace Microsoft.AspNetCore.Server.Kestrel.Infrastructure
 
         public readonly FrameRequestHeaders RequestHeaders = new FrameRequestHeaders();
         public readonly FrameResponseHeaders ResponseHeaders = new FrameResponseHeaders();
-
-        private readonly KestrelServerOptions _options;
-
-        public Headers(KestrelServerOptions options)
-        {
-            _options = options;
-        }
-
-        public void Initialize(DateHeaderValueManager dateValueManager)
-        {
-            var dateHeaderValues = dateValueManager.GetDateHeaderValues();
-
-            ResponseHeaders.SetRawDate(dateHeaderValues.String, dateHeaderValues.Bytes);
-
-            if (_options.AddServerHeader)
-            {
-                ResponseHeaders.SetRawServer(Constants.ServerName, BytesServer);
-            }
-        }
 
         public void Uninitialize()
         {

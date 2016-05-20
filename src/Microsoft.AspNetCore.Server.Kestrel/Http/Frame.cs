@@ -174,7 +174,7 @@ namespace Microsoft.AspNetCore.Server.Kestrel.Http
 
         public void InitializeHeaders()
         {
-            _frameHeaders = HttpComponentFactory.CreateHeaders(DateHeaderValueManager);
+            _frameHeaders = HttpComponentFactory.CreateHeaders();
             RequestHeaders = _frameHeaders.RequestHeaders;
             ResponseHeaders = _frameHeaders.ResponseHeaders;
         }
@@ -609,6 +609,7 @@ namespace Microsoft.AspNetCore.Server.Kestrel.Http
 
                     var responseHeaders = _frameHeaders.ResponseHeaders;
                     responseHeaders.Reset();
+
                     var dateHeaderValues = DateHeaderValueManager.GetDateHeaderValues();
 
                     responseHeaders.SetRawDate(dateHeaderValues.String, dateHeaderValues.Bytes);
@@ -728,6 +729,17 @@ namespace Microsoft.AspNetCore.Server.Kestrel.Http
             else if (_keepAlive && !responseHeaders.HasConnection && _httpVersion == HttpVersionType.Http10)
             {
                 responseHeaders.SetRawConnection("keep-alive", _bytesConnectionKeepAlive);
+            }
+
+            if (!responseHeaders.HasDate)
+            {
+                var dateHeaderValues = DateHeaderValueManager.GetDateHeaderValues();
+                responseHeaders.SetRawDate(dateHeaderValues.String, dateHeaderValues.Bytes);
+            }
+
+            if (ServerOptions.AddServerHeader && !responseHeaders.HasServer)
+            {
+                responseHeaders.SetRawServer(Constants.ServerName, Headers.BytesServer);
             }
 
             end.CopyFrom(_bytesHttpVersion11);

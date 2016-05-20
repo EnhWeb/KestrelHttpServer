@@ -13,7 +13,7 @@ namespace Microsoft.AspNetCore.Server.Kestrel.Infrastructure
 
         void DisposeStreams(Streams streams);
 
-        Headers CreateHeaders(DateHeaderValueManager dateValueManager);
+        Headers CreateHeaders();
 
         void DisposeHeaders(Headers headers);
     }
